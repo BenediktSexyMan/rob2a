@@ -1,5 +1,6 @@
-#pragma config(Sensor, dgtl6,  rightEncoder,   sensorQuadEncoder)
 #pragma config(Sensor, dgtl4,  leftEncoder,    sensorQuadEncoder)
+#pragma config(Sensor, dgtl6,  rightEncoder,   sensorQuadEncoder)
+#pragma config(Sensor, dgtl12, breakSwitch,    sensorDigitalIn)
 #pragma config(Motor,  port2,           rightMotor,    tmotorServoContinuousRotation, openLoop)
 #pragma config(Motor,  port3,           leftMotor,     tmotorServoContinuousRotation, openLoop, reversed)
 #pragma config(Motor,  port6,           armMotor,      tmotorServoContinuousRotation, openLoop)
@@ -27,48 +28,49 @@
 
 //+++++++++++++++++++++++++++++++++++++++++++++| MAIN |+++++++++++++++++++++++++++++++++++++++++++++++
 
+bool downed = false;
 
-
-task main()
-{
-
-
-	bool downed = false;
-
-	SensorValue[rightEncoder] = 0;	  // Set the encoder so that it starts counting at 0
-	SensorValue[leftEncoder]  = 0;	  // Set the encoder so that it starts counting at 0
 
 	//Nonna vals
 	int SensorRL = 0;
 	int SensorLL = 0;
 	float NonnakalkR = 0.0 ;
 	float NonnakalkL = 0.0 ;
-	int testspeed = -126;
+	int testspeed = 42;
+	int breaklast = 1;
+	float Nout1= 0;
+	float Nout2= 0;
 
 	//times
-	float NonniTimeNorm = 800;  //hvada tima einn snuningur a ad taka
 	float Ntime1 = 0;
 	float Ntime2 = 0;
 	float Ntime3 = 0;
-	float Vidmid = 800;
+	float Vidmid = 1260; //hvada tima einn snuningur a ad taka
 	int Stateout = 0; //ef thetta verdur 2 haettir calibrationid
+
+
+task main()
+{
+
+	SensorValue[rightEncoder] = 0;	  // Set the encoder so that it starts counting at 0
+	SensorValue[leftEncoder]  = 0;	  // Set the encoder so that it starts counting at 0
 	clearDebugStream();
 	Ntime3 = nPgmTime;
   while(Stateout<2)
   {
+  	if(!SensorValue[breakSwitch])
+  	{
+  		break;
+  	}
 		Stateout = 0;
-
-
-
-
-  	if (-SensorValue[rightEncoder]>-400)
+  	if (-SensorValue[rightEncoder]<400)
   	{
   		motor[rightMotor] = testspeed;
   		Ntime1=((float)nPgmTime);
   	}
-  	else if (-SensorValue[rightEncoder]==-400)
+  	else if (-SensorValue[rightEncoder]==400)
   	{
-  		Ntime1=((float)nPgmTime+Ntime2)/2;
+  		//Ntime1=((float)nPgmTime+Ntime2)/2;
   		writeDebugStreamLine(" Right: %d, Time %d", SensorValue[rightEncoder], Ntime1);
   		motor[rightMotor] = testspeed;
   	}
@@ -80,15 +82,15 @@ task main()
 
 
 
-  	if (-SensorValue[leftEncoder]>-400)
+  	if (-SensorValue[leftEncoder]<400)
   	{
   		motor[leftMotor] = testspeed;
   		Ntime2=((float)nPgmTime);
   	}
 
-  	else if (-SensorValue[leftEncoder]==-400)
+  	else if (-SensorValue[leftEncoder]==400)
   	{
-  		Ntime2=((float)nPgmTime+Ntime2)/2;
+  		//Ntime2=((float)nPgmTime+Ntime2)/2;
   		writeDebugStreamLine(" left: %d, Time %d", SensorValue[leftEncoder], Ntime2);
   		motor[leftMotor] = testspeed;
   	}
@@ -100,14 +102,46 @@ task main()
 
 
   }
-  Ntime1 = (Ntime1 - Ntime3)/Vidmid;
-	Ntime2 = (Ntime2 - Ntime3)/Vidmid;
+  writeDebugStreamLine(" left: %f, right: %f , Ntime3: %f", Ntime2, Ntime1,Ntime3);
+  Ntime1 = (Ntime1 - Ntime3);
+	Ntime2 = (Ntime2 - Ntime3);
+	if (Ntime1 >Ntime2){
+		Ntime3=Ntime2;
+		Nout1=testspeed-(-126*(Ntime1-Ntime2))-testspeed-(-126*(Ntime2-Ntime1));
+	}
+	else
+	{
+		Ntime3=Ntime1;
+		Nout2=testspeed-(-126*(Ntime2-Ntime1))-testspeed-(-126*(Ntime1-Ntime2));
+	}
+	Ntime1 = Ntime1/Ntime3;
+	Ntime2 = Ntime2/Ntime3;
 	writeDebugStreamLine(" left: %f, right %f", Ntime2, Ntime1);
+	writeDebugStreamLine(" left: %i, right %i", testspeed*Ntime2, testspeed*Ntime1);
+	writeDebugStreamLine(" left: %i, right %i", testspeed-(-testspeed*2*(Ntime2-Ntime1)), testspeed-(-testspeed*2*(Ntime1-Ntime2));
 	SensorValue[rightEncoder] = 0;	  // Set the encoder so that it starts counting at 0
 	SensorValue[leftEncoder]  = 0;	  // Set the encoder so that it starts counting at 0
-	while(SensorValue[leftEncoder]< 3000){
-		motor[rightMotor] = testspeed*Ntime2;
-		motor[leftMotor] = testspeed*Ntime1;
+
+
+	while(true){
+
+		if(SensorValue[breakSwitch])
+  		{if(!breaklast)
+  		{
+  			break;
+  		}
+  	}
+  	breaklast= SensorValue[breakSwitch];
+	}
+	while(SensorValue[leftEncoder]> -3000){
+		/*if(!SensorValue[breakSwitch])
+  	{
+  		break;
+  	}*/
+		//motor[rightMotor] = testspeed+(Nout1);
+		//motor[leftMotor] = testspeed+(Nout2);
+  	motor[rightMotor] = testspeed-(-testspeed*2*(Ntime1-Ntime2));
+		motor[leftMotor] = testspeed-(-testspeed*2*(Ntime2-Ntime1));
 	}
 
 
