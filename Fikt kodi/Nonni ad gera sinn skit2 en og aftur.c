@@ -36,7 +36,8 @@ bool downed = false;
 	int SensorLL = 0;
 	float NonnakalkR = 0.0 ;
 	float NonnakalkL = 0.0 ;
-	int testspeed = 42;
+	int testspeed = 80;
+	int direction = testspeed/abs(testspeed);
 	int breaklast = 1;
 	float Nout1= 0;
 	float Nout2= 0;
@@ -47,7 +48,7 @@ bool downed = false;
 	float Ntime3 = 0;
 	float Vidmid = 1260; //hvada tima einn snuningur a ad taka
 	int Stateout = 0; //ef thetta verdur 2 haettir calibrationid
-
+	int i=1;
 
 task main()
 {
@@ -55,6 +56,12 @@ task main()
 	SensorValue[rightEncoder] = 0;	  // Set the encoder so that it starts counting at 0
 	SensorValue[leftEncoder]  = 0;	  // Set the encoder so that it starts counting at 0
 	clearDebugStream();
+	for ( i=1; i<2000; i++) {
+		motor[rightMotor] = testspeed;
+		motor[leftMotor] = testspeed;
+	}
+	SensorValue[rightEncoder] = 0;	  // Set the encoder so that it starts counting at 0
+	SensorValue[leftEncoder]  = 0;	  // Set the encoder so that it starts counting at 0
 	Ntime3 = nPgmTime;
   while(Stateout<2)
   {
@@ -63,12 +70,12 @@ task main()
   		break;
   	}
 		Stateout = 0;
-  	if (-SensorValue[rightEncoder]<400)
+  	if (direction*-SensorValue[rightEncoder]<direction*testspeed*10)
   	{
   		motor[rightMotor] = testspeed;
   		Ntime1=((float)nPgmTime);
   	}
-  	else if (-SensorValue[rightEncoder]==400)
+  	else if (direction*-SensorValue[rightEncoder]==direction*testspeed*10)
   	{
   		//Ntime1=((float)nPgmTime+Ntime2)/2;
   		writeDebugStreamLine(" Right: %d, Time %d", SensorValue[rightEncoder], Ntime1);
@@ -82,13 +89,13 @@ task main()
 
 
 
-  	if (-SensorValue[leftEncoder]<400)
+  	if (direction*-SensorValue[leftEncoder]<direction*testspeed*10)
   	{
   		motor[leftMotor] = testspeed;
   		Ntime2=((float)nPgmTime);
   	}
 
-  	else if (-SensorValue[leftEncoder]==400)
+  	else if (direction*-SensorValue[leftEncoder]==direction*testspeed*10)
   	{
   		//Ntime2=((float)nPgmTime+Ntime2)/2;
   		writeDebugStreamLine(" left: %d, Time %d", SensorValue[leftEncoder], Ntime2);
@@ -107,12 +114,12 @@ task main()
 	Ntime2 = (Ntime2 - Ntime3);
 	if (Ntime1 >Ntime2){
 		Ntime3=Ntime2;
-		Nout1=testspeed-(-126*(Ntime1-Ntime2))-testspeed-(-126*(Ntime2-Ntime1));
+		//Nout1=testspeed-(-126*(Ntime1-Ntime2))-testspeed-(-126*(Ntime2-Ntime1));
 	}
 	else
 	{
 		Ntime3=Ntime1;
-		Nout2=testspeed-(-126*(Ntime2-Ntime1))-testspeed-(-126*(Ntime1-Ntime2));
+		//Nout2=testspeed-(-126*(Ntime2-Ntime1))-testspeed-(-126*(Ntime1-Ntime2));
 	}
 	Ntime1 = Ntime1/Ntime3;
 	Ntime2 = Ntime2/Ntime3;
@@ -121,7 +128,9 @@ task main()
 	writeDebugStreamLine(" left: %i, right %i", testspeed-(-testspeed*2*(Ntime2-Ntime1)), testspeed-(-testspeed*2*(Ntime1-Ntime2));
 	SensorValue[rightEncoder] = 0;	  // Set the encoder so that it starts counting at 0
 	SensorValue[leftEncoder]  = 0;	  // Set the encoder so that it starts counting at 0
-
+	Nout1=2*(-testspeed*(2-abs(direction*testspeed/126))*(Ntime1-Ntime2));//(-testspeed*(2-abs(testspeed/126))*(Ntime1-Ntime2));
+	Nout2=2*(-testspeed*(2-abs(direction*testspeed/126))*(Ntime2-Ntime1));//(-testspeed*(2-abs(testspeed/126))*(Ntime2-Ntime1));
+	writeDebugStreamLine(" Nout2 left: %i, | Nout1 right %i",-Nout2,-Nout1;
 
 	while(true){
 
@@ -133,15 +142,17 @@ task main()
   	}
   	breaklast= SensorValue[breakSwitch];
 	}
-	while(SensorValue[leftEncoder]> -3000){
+	SensorValue[rightEncoder] = 0;	  // Set the encoder so that it starts counting at 0
+	SensorValue[leftEncoder]  = 0;	  // Set the encoder so that it starts counting at 0
+	while(abs(SensorValue[leftEncoder])< 2000){
 		/*if(!SensorValue[breakSwitch])
   	{
   		break;
   	}*/
 		//motor[rightMotor] = testspeed+(Nout1);
 		//motor[leftMotor] = testspeed+(Nout2);
-  	motor[rightMotor] = testspeed-(-testspeed*2*(Ntime1-Ntime2));
-		motor[leftMotor] = testspeed-(-testspeed*2*(Ntime2-Ntime1));
+  	motor[rightMotor] = testspeed-Nout1;//(-testspeed*(2-abs(testspeed/126))*(Ntime1-Ntime2));
+		motor[leftMotor] = testspeed-Nout2;//(-testspeed*(2-abs(testspeed/126))*(Ntime2-Ntime1));
 	}
 
 
