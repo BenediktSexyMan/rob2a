@@ -1,0 +1,37 @@
+Right motor port2 
+left motor port3
+claw motor port5
+arm motor port6
+
+Analog ----------------------------------
+|1|...|PM1-Potentiometer Arm
+|2|...|LS1-Light sensor 1-Photon sensor
+|3|...|LFL-Line Follower Left
+|4|...|LFM-Line Follower Middle
+|5|...|LFR-Line Follower Right
+|6|...|
+|7|...|
+|8|...|
+Digital ---------------------------------
+|1 |...|SS1
+|2 |...|SS2
+|3 |...|T1 -Touch 1-Að framan
+|4 |...|LE1-Left Encoder 1
+|5 |...|LE2-Left Encoder 2
+|6 |...|RE1-Right Encoder 1
+|7 |...|RE2-Right Encoder 2
+|8 |...|
+|9 |...|
+|10|...|
+|11|...|G1 -Gyroscope 1
+|12|...|BRS-Break Switch
+Motor -----------------------------------
+|2|...|RWM-Right Wheel Motor
+|3|...|LWM-Left Wheel Motor
+|4|...|
+|5|...|CLM-Claw Motor
+|6|...|ARM-Arm Motor
+|7|...|
+|8|...|
+|9|...|
+---------------------------------------
