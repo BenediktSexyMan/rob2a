@@ -29,7 +29,7 @@ Motor -----------------------------------
 |2|...|RWM-Right Wheel Motor
 |3|...|LWM-Left Wheel Motor
 |4|...|
-|5|...|CLM-Claw Motor
+|5|...|CLM-M3-Claw Motor
 |6|...|ARM-Arm Motor
 |7|...|
 |8|...|
