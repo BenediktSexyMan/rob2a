@@ -16,13 +16,6 @@ struct
 	bool set;
 } Timer;
 
-/*Timer createTimer()
-{
-	Timer tim;
-	tim.set = false;
-	return tim;
-}*/
-
 bool timerPassed( Timer* pThis )
 {
 	if (nPgmTime >= pThis->tStart + pThis->milli)
@@ -40,7 +33,7 @@ void startTimer( Timer* pThis, unsigned int milli )
 	pThis->set = true;
 }
 
-Timer tim;//createTimer();
+Timer tim;
 
 void stopMotors()
 {
